@@ -1,0 +1,27 @@
+# python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# virtual env (if created locally)
+.venv/
+venv/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# editor stuff
+.vscode/
+.idea/
+
+# jupyter notebook checkpoint files
+.ipynb_checkpoints/
+
+# local data cache / scraped results
+*.csv
+*.xlsx
+*.json
+
+# logs
+*.log
