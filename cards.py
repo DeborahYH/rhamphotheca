@@ -28,11 +28,13 @@ def extract_cards(file):
 
     # Extracts the record's ID from the cards 
     with open(f"wikiaves_data/{file}.csv", "r") as file:
-
         reader = csv.DictReader(file)
 
         for row in reader:
+
+            # Extracts basic data to be included in the new .csv file
             id = row["ID"]
+            tipo = row["Tipo de Registro"]
 
             # Extracts the HTML code of each card
             response = requests.get(f"https://www.wikiaves.com.br/{id}", headers=headers)
@@ -43,10 +45,11 @@ def extract_cards(file):
 
             # Extracts the desired data
             nome_popular = div_data.find("a", class_="wa-id").text.strip()
-            nome_cientifico = div_data.find("i").text.strip()
 
+            nome_cientifico = div_data.find("i").text.strip()
             record_dict.update({
                 "id": id,
+                "tipo de registro": tipo,
                 "especie_comum": nome_popular,
                 "nome_cientifico": nome_cientifico,
             })
@@ -82,6 +85,7 @@ def extract_cards(file):
 
     df = df.rename(columns={
                         "id": "ID",
+                        "tipo de registro": "Tipo de Registro",
                         "especie_comum": "Nome Popular", 
                         "nome_cientifico": "Nome Cientifico",
                         "assunto(s)": "Assunto",
@@ -89,7 +93,6 @@ def extract_cards(file):
                         "sexo": "Sexo",
                         "idade": "Idade",
                         "autor": "Autor",
-                        "local de observação": "Local de Observação",
                         "município": "Município",
                         "feita em": "Data do Registro",
                         "publicada em": "Data de Publicação",
