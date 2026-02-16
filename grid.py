@@ -76,7 +76,3 @@ def extract_grid(t, c, s=None):
         nome_cientifico = df["Nome Cientifico"].iloc[0]
         nome_cientifico = nome_cientifico.lower().replace(" ", "_")
         df.to_csv(os.path.join("wikiaves_data", f"{nome_cientifico}_grid.csv"), index=False)
-
-
-extract_grid(t='c', s='10434', c='3550308')
-extract_grid(t='c', c='3550308')

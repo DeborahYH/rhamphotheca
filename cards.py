@@ -27,7 +27,7 @@ def extract_cards(file):
     }
 
     # Extracts the record's ID from the cards 
-    with open(f"wikiaves_data/{file}.csv", "r") as file:
+    with open(f"wikiaves_data/{file}", "r") as file:
         reader = csv.DictReader(file)
 
         for row in reader:
@@ -113,7 +113,3 @@ def extract_cards(file):
 
     # Creates a csv file inside the wikiaves_data folder
     df.to_csv(os.path.join("wikiaves_data", f"{file_name}_cards.csv"), index=False)
-
-
-extract_cards(file='município_grid.csv')
-extract_cards(file='especie_grid.csv')
