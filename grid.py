@@ -1,10 +1,10 @@
 from bs4 import BeautifulSoup
 import pandas as pd
+import logging
 import requests
 import time
 import random
 import os
-
 
 def extract_grid(t, c, s=None):
     """Extracts data from the pages containing individual records."""
@@ -72,7 +72,9 @@ def extract_grid(t, c, s=None):
         municipio = municipio.lower().replace(" ", "_")
         nome, _, estado = municipio.partition("/")
         df.to_csv(os.path.join("wikiaves_data", f"{nome}_({estado})_grid.csv"), index=False)
+        logging.info(f"Data extracted from grid and saved to '{nome}_({estado})_grid.csv' with {len(df)} records")
     else:
         nome_cientifico = df["Nome Cientifico"].iloc[0]
         nome_cientifico = nome_cientifico.lower().replace(" ", "_")
         df.to_csv(os.path.join("wikiaves_data", f"{nome_cientifico}_grid.csv"), index=False)
+        logging.info(f"Data extracted from grid and saved to '{nome_cientifico}_grid.csv' with {len(df)} records")

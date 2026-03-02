@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import pandas as pd
+import logging
 import requests
 import os
 import csv
@@ -10,7 +11,7 @@ import time
 def extract_cards(file):
 
     # Extracts the file name to be used in the new file 
-    file_name = file.replace("_grid", "")
+    file_name = file.replace("_grid.csv", "")
 
     # List containing the data from all cards
     record_data = []
@@ -113,3 +114,4 @@ def extract_cards(file):
 
     # Creates a csv file inside the wikiaves_data folder
     df.to_csv(os.path.join("wikiaves_data", f"{file_name}_cards.csv"), index=False)
+    logging.info(f"Data extracted from cards and saved to '{file_name}_cards.csv' with {len(df)} records")

@@ -1,5 +1,6 @@
 import urllib
 import tkinter
+import logging
 import customtkinter as ctk
 from PIL import Image
 from grid import extract_grid
@@ -7,6 +8,13 @@ from cards import extract_cards
 from urllib.parse import urlparse
 from tkinter import filedialog as fd
 
+logging.basicConfig(level=logging.INFO, 
+                    format="{asctime} {levelname} - {message}",
+                    style="{", 
+                    datefmt="%d/%m/%Y %H:%M",
+                    filename="wiki_aves.log",
+                    encoding="utf-8",
+                    filemode="a")
 
 def radio_event():
     """
