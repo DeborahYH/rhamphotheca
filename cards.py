@@ -8,10 +8,10 @@ import random
 import time
 
 
-def extract_cards(file):
+def extract_cards(file_input):
 
     # Extracts the file name to be used in the new file 
-    file_name = file.replace("_grid.csv", "")
+    file_name = file_input.replace("_grid.csv", "")
 
     # List containing the data from all cards
     record_data = []
@@ -28,7 +28,7 @@ def extract_cards(file):
     }
 
     # Extracts the record's ID from the cards 
-    with open(f"wikiaves_data/{file}", "r") as file:
+    with open(f"wikiaves_data/{file_input}", "r", encoding="utf-8") as file:
         reader = csv.DictReader(file)
 
         for row in reader:

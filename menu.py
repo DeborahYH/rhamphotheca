@@ -91,8 +91,8 @@ def send_file():
         print("No file selected.")
         return
     else: 
-        file = filename_lbl.cget("text")
-        extract_cards(file=file.split(": ")[1])
+        file_input = filename_lbl.cget("text")
+        extract_cards(file_input=file_input.split(": ")[1])
 
 
 def submit(data_source):
