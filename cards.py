@@ -36,13 +36,35 @@ def extract_cards(file_input):
             # Extracts basic data to be included in the new .csv file
             id = row["ID"]
             tipo = row["Tipo de Registro"]
+            
+            try:
 
-            # Extracts the HTML code of each card
-            response = requests.get(f"https://www.wikiaves.com.br/{id}", headers=headers)
-            soup = BeautifulSoup(response.text, "html.parser")
+                # Extracts the HTML code of each card
+                response = requests.get(f"https://www.wikiaves.com.br/{id}", 
+                                        headers=headers,
+                                        timeout=(5,10))
+            
+            except requests.exceptions.Timeout:
+                logging.error(f"Timeout for ID {id}")
+                continue
+            except requests.exceptions.RequestException as e:
+                logging.error(f"Request failed for ID {id}: {e}")
+                continue
+            
+            if response.status_code != 200:
+                logging.error(f"Failed to retrieve data for ID {id}: Status code {response.status_code}")
+                continue
 
-            # HTML portion containing the desired data
-            div_data = soup.find("div", class_="wa-lista-detalhes")
+            try:
+                soup = BeautifulSoup(response.text, "html.parser")
+
+                # HTML portion containing the desired data
+                div_data = soup.find("div", class_="wa-lista-detalhes")
+            
+            except Exception as e:
+                logging.error(f"Failed to parse HTML for ID {id}: {e}")
+                continue
+            
             if not div_data:
                 continue
             
@@ -75,8 +97,14 @@ def extract_cards(file_input):
                 label = label_tag.text.strip().replace(":", "").lower()
                 if label == "local de observação":
                     continue
-                value = label_tag.next_sibling.strip() if label_tag.next_sibling else ""
                 
+                sibling = label_tag.next_sibling
+
+                if sibling:
+                    value = sibling.strip()
+                else:
+                    value = ""
+
                 # Extracts the author and city from a link
                 author = div.find("a")
                 if author:
