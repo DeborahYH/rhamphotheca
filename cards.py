@@ -82,12 +82,12 @@ def extract_cards(file_input):
             else:
                 nome_cientifico = ""
                 
-            record_dict.update({
+            record_dict = {
                 "id": registro_id,
                 "tipo de registro": tipo,
                 "especie_comum": nome_popular,
                 "nome_cientifico": nome_cientifico,
-            })
+            }
 
             # Extracts the value from miscellaneous fields
             for div in div_data.find_all("div"):
@@ -105,9 +105,7 @@ def extract_cards(file_input):
                     sibling = label_tag.next_sibling
                     value = sibling.strip() if sibling else ""
 
-                record_dict.update({
-                    label: value
-                })
+                record_dict[label] = value
 
             # Adds the data from each card to the list
             record_data.append(record_dict)
