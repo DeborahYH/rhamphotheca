@@ -25,7 +25,7 @@ def extract_cards(file_input):
     }
 
     # Extracts the record's ID from the cards 
-    with open(f"wikiaves_data/{file_input}", "r", encoding="utf-8") as file:
+    with open(file_input, "r", encoding="utf-8") as file:
         reader = csv.DictReader(file)
 
         for row in reader:
