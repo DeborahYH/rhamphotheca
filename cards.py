@@ -34,13 +34,13 @@ def extract_cards(file_input):
         for row in reader:
 
             # Extracts basic data to be included in the new .csv file
-            id = row["ID"]
+            registro_id = row["ID"]
             tipo = row["Tipo de Registro"]
             
             try:
 
                 # Extracts the HTML code of each card
-                response = requests.get(f"https://www.wikiaves.com.br/{id}", 
+                response = requests.get(f"https://www.wikiaves.com.br/{registro_id}", 
                                         headers=headers,
                                         timeout=(5,10))
             
@@ -48,11 +48,11 @@ def extract_cards(file_input):
                 logging.error(f"Timeout for ID {id}")
                 continue
             except requests.exceptions.RequestException as e:
-                logging.error(f"Request failed for ID {id}: {e}")
+                logging.error(f"Request failed for ID {registro_id}: {e}")
                 continue
             
             if response.status_code != 200:
-                logging.error(f"Failed to retrieve data for ID {id}: Status code {response.status_code}")
+                logging.error(f"Failed to retrieve data for ID {registro_id}: Status code {response.status_code}")
                 continue
 
             try:
@@ -62,7 +62,7 @@ def extract_cards(file_input):
                 div_data = soup.find("div", class_="wa-lista-detalhes")
             
             except Exception as e:
-                logging.error(f"Failed to parse HTML for ID {id}: {e}")
+                logging.error(f"Failed to parse HTML for ID {registro_id}: {e}")
                 continue
             
             if not div_data:
@@ -83,7 +83,7 @@ def extract_cards(file_input):
                 nome_cientifico = ""
                 
             record_dict.update({
-                "id": id,
+                "id": registro_id,
                 "tipo de registro": tipo,
                 "especie_comum": nome_popular,
                 "nome_cientifico": nome_cientifico,
