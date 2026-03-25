@@ -41,9 +41,9 @@ def select_file():
     filetypes = (('csv files', '*.csv'), ('All files', '*.*'))
 
     # Opens a file dialog
+    global file_location
     file_location = fd.askopenfilename(
         title='Open a file',
-        initialdir='C:/Users/User/GitHub/rhamphotheca/wikiaves_data',
         filetypes=filetypes)
 
     # Extracts the selected file's name
@@ -91,8 +91,7 @@ def send_file():
         print("No file selected.")
         return
     else: 
-        file_input = filename_lbl.cget("text")
-        extract_cards(file_input=file_input.split(": ")[1])
+        extract_cards(file_location)
 
 
 def submit(data_source):
