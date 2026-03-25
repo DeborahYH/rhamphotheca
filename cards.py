@@ -16,9 +16,6 @@ def extract_cards(file_input):
     # List containing the data from all cards
     record_data = []
 
-    # Dictionary containing the data from a single card
-    record_dict = {}
-
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -33,6 +30,9 @@ def extract_cards(file_input):
 
         for row in reader:
 
+            # Dictionary containing the data from a single card
+            record_dict = {}
+
             # Extracts basic data to be included in the new .csv file
             registro_id = row["ID"]
             tipo = row["Tipo de Registro"]
@@ -45,7 +45,7 @@ def extract_cards(file_input):
                                         timeout=(5,10))
             
             except requests.exceptions.Timeout:
-                logging.error(f"Timeout for ID {id}")
+                logging.error(f"Timeout for ID {registro_id}")
                 continue
             except requests.exceptions.RequestException as e:
                 logging.error(f"Request failed for ID {registro_id}: {e}")
@@ -98,28 +98,19 @@ def extract_cards(file_input):
                 if label == "local de observação":
                     continue
                 
-                sibling = label_tag.next_sibling
-
-                if sibling:
-                    value = sibling.strip()
-                else:
-                    value = ""
-
-                # Extracts the author and city from a link
                 author = div.find("a")
                 if author:
                     value = author.text.strip()
                 else:
                     sibling = label_tag.next_sibling
-                    if sibling:
-                        value = sibling.strip()
+                    value = sibling.strip() if sibling else ""
 
                 record_dict.update({
                     label: value
                 })
 
             # Adds the data from each card to the list
-            record_data.append(record_dict.copy())
+            record_data.append(record_dict)
             
             wait = random.uniform(5, 20)
             time.sleep(wait)
