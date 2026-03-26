@@ -87,6 +87,8 @@ def send_parameters(url):
     else:
         extract_grid(t=t, c=c)
 
+    logging.info(f"Extraction - URL requested: {url}")
+
 def send_file():
     """
     Validates and sends the file selected by the user to be processed by extract_cards().
@@ -99,7 +101,8 @@ def send_file():
         return
     else: 
         extract_cards(file_location)
-
+    
+    logging.info(f"Extraction - File requested: {filename_lbl.cget('text')}")
 
 def submit(data_source):
     """
