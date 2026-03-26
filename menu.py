@@ -7,6 +7,7 @@ from grid import extract_grid
 from cards import extract_cards
 from urllib.parse import urlparse
 from tkinter import filedialog as fd
+from CTkMessagebox import CTkMessagebox
 
 logging.basicConfig(level=logging.INFO, 
                     format="{asctime} {levelname} - {message}",
@@ -41,13 +42,11 @@ def select_file():
     The selected file's name is then displayed on the GUI.
     """
 
-    filetypes = (('csv files', '*.csv'), ('All files', '*.*'))
-
     # Opens a file dialog
     global file_location
     file_location = fd.askopenfilename(
         title='Open a file',
-        filetypes=filetypes)
+        filetypes=(('csv files', '*.csv'),))
 
     # Extracts the selected file's name
     filename = file_location.split("/")[-1]
@@ -73,16 +72,20 @@ def send_parameters(url):
 
     for k,v in result.items():
         dict_url[k] = v[0]
-
-    t=dict_url["t"]
-    c=dict_url["c"]
+    
+    if "t" not in dict_url or "c" not in dict_url:
+        messagebox_config["message"] = "A URL deve conter os parâmetros 't' e 'c'."
+        CTkMessagebox(**messagebox_config)
+        return
+    else:
+        t=dict_url["t"]
+        c=dict_url["c"]
 
     if "s" in dict_url:
         s=dict_url["s"]
         extract_grid(t=t, c=c, s=s)
     else:
         extract_grid(t=t, c=c)
-
 
 def send_file():
     """
@@ -91,7 +94,8 @@ def send_file():
     """
 
     if filename_lbl.cget("text") == "":
-        print("No file selected.")
+        messagebox_config["message"] = "Por favor, selecione um arquivo .csv."
+        CTkMessagebox(**messagebox_config)
         return
     else: 
         extract_cards(file_location)
@@ -117,7 +121,9 @@ def submit(data_source):
     elif data_source == 2:
         send_file()
     else:
-        print("Erro, opção inválida")
+        messagebox_config["message"] = "Por favor, selecione uma fonte de dados."
+        CTkMessagebox(**messagebox_config)
+        return
 
 
 # CUSTOM TKINTER GUI
@@ -132,6 +138,21 @@ screen_height = app.winfo_screenheight()
 x = (screen_width // 2) - (window_width // 2)
 y = (screen_height // 2) - (window_height // 2)
 app.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+messagebox_config = {"master": app,
+                    "width": 330,
+                    "bg_color": "#E9E9E9",
+                    "fg_color": "#E9E9E9",
+                    "title": "Erro",
+                    "font": ("Helvetica", 15, "bold"),
+                    "message": "",
+                    "justify": "center",
+                    "icon": "cancel",
+                    "icon_size": (30, 30),
+                    "button_width": 50,
+                    "button_color": "#E5521D",
+                    "border_width": 2,
+                    "corner_radius": 5}
 
 
 # MENU ELEMENTS
