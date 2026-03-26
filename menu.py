@@ -16,9 +16,13 @@ logging.basicConfig(level=logging.INFO,
                     encoding="utf-8",
                     filemode="a")
 
+
 def radio_event():
     """
     Handles the event when the user selects an option from the radio buttons.
+
+    Option 1 = URL: Enables the URL entry field and disables the button to select a file.
+    Option 2 = CSV file: Enables the button to select a file and disables the URL entry field.
     """
 
     # Disables the button to select a file if the user chooses to enter a URL
@@ -30,7 +34,6 @@ def radio_event():
     elif data_source.get() == 2:
         entry.configure(state="disabled")
         open_button.configure(state="normal")
-
 
 def select_file():
     """
@@ -54,14 +57,14 @@ def select_file():
         filename_lbl.configure(text=f"Selected file: {filename}",
                                 font=("Helvetica", 13))
 
-
 def send_parameters(url):
     """
-    Extracts the parameters from the URL given by the user
-    The parameters extracted are used to call extract_grid().
-    
-    Parameters:
-    url (str): URL containing the parameters to be extracted.
+    Extracts the parameters from the URL given by the user and uses them to call extract_grid().
+
+    Parameters
+    ----------
+    url : str
+        URL containing the parameters to be extracted.
     """
 
     dict_url = {}
@@ -83,7 +86,7 @@ def send_parameters(url):
 
 def send_file():
     """
-    Sends the file selected by the user to be processed by extract_cards().
+    Validates and sends the file selected by the user to be processed by extract_cards().
     If no file is selected, prints a message to the console and returns without calling extract_cards.
     """
 
@@ -97,11 +100,16 @@ def send_file():
 def submit(data_source):
     """
     Calls 2 distinct functions depending on the data source selected by the user.
-    send_parameters() extracts the parameters from the URL and calls extract_grid() 
-    send_file() calls extract_cards() to extract data from Wiki Aves based on the data inside this file
     
-    Parameters:
-    data_source (int): The user's choice, either 1 (URL) or 2 (CSV file).
+    send_parameters() extracts the parameters from the URL and calls extract_grid() 
+    send_file() calls extract_cards() to extract individual records from Wiki Aves
+
+    Parameters
+    ----------
+    data_source : int
+        The user's choice, referring to either:
+        - 1 = URL
+        - 2 = .csv file
     """
 
     if data_source == 1:
@@ -136,8 +144,10 @@ logo = ctk.CTkImage(light_image = Image.open('wiki_aves.png'), dark_image = Imag
 lbl_logo = ctk.CTkLabel(app, text="", image = logo)
 lbl_logo.place(relx = 0.5, rely = 0.15, anchor = 'center')
 
-# Radio buttons allow the user to define whether the data will be extracted from a URL or from a CSV file
-radio_lbl = ctk.CTkLabel(app, font=("Helvetica", 18, "bold"), text="Choose the data source:")
+# Radio buttons let the user define whether the data will be extracted from a URL or from a .csv file
+radio_lbl = ctk.CTkLabel(app, 
+                        font=("Helvetica", 18, "bold"),
+                        text="Fonte de dados:")
 radio_lbl.place(relx=0.2, rely = 0.3)
 radio_btn1 = ctk.CTkRadioButton(app, 
                                 radiobutton_width=15,
@@ -164,16 +174,16 @@ radio_btn2 = ctk.CTkRadioButton(app,
                                 border_width_unchecked=2,
                                 border_width_checked=4,
                                 font=("Helvetica", 15),
-                                text="CSV File",
+                                text="Arquivo CSV",
                                 variable=data_source,
                                 value=2,
                                 command=radio_event)
 radio_btn2.place(relx=0.2, rely = 0.52)
 
-# Button opens a file dialog where the user can select a file
+# Button lets the user select a .csv file
 open_button = ctk.CTkButton(app,
                             height=30,
-                            text='Choose a File',
+                            text='Selecione um arquivo:',
                             text_color="white",
                             font=("Helvetica", 16, "bold"), 
                             state="disabled",
@@ -181,11 +191,11 @@ open_button = ctk.CTkButton(app,
                         )
 open_button.place(relx=0.2, rely = 0.57)
 
-# Displays the selected file's name once the user selects a file
+# Displays the selected file's name
 filename_lbl = ctk.CTkLabel(app, text="")
 filename_lbl.place(relx=0.2, rely = 0.63)
 
-# Calls the function to extract data based on the user's choices
+# Button calls the function to extract data based on the user's choices
 submit_btn = ctk.CTkButton(app, 
                             height=30,
                             text="Enviar",
