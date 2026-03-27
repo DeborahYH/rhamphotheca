@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import pandas as pd
+import datetime as dt
 import logging
 import requests
 import time
@@ -8,6 +9,8 @@ import os
 
 def extract_grid(t, c, s=None):
     """Extracts data from the pages containing individual records."""
+
+    current_time = dt.datetime.now().strftime('%d-%m-%Y')
 
     records = []
 
@@ -85,16 +88,16 @@ def extract_grid(t, c, s=None):
 
     df = pd.DataFrame(records)
 
-    # Saves the data to a CSV file
-    # File name is defined based on the presence of a specific parameter in the url
+    # Saves the data to a CSV file based on the location or scientific name
     if s is None:
-        municipio = df["Município"].iloc[0]
-        municipio = municipio.lower().replace(" ", "_")
+        municipio = df["Município"].iloc[0].lower().replace(" ", "_")
         nome, _, estado = municipio.partition("/")
-        df.to_csv(os.path.join("wikiaves_data", f"{nome}_({estado})_grid.csv"), index=False)
-        logging.info(f"Data extracted from grid and saved to '{nome}_({estado})_grid.csv' with {len(df)} records")
+        filename = f"{nome}_({estado})_({current_time})_grid.csv"
     else:
-        nome_cientifico = df["Nome Cientifico"].iloc[0]
-        nome_cientifico = nome_cientifico.lower().replace(" ", "_")
-        df.to_csv(os.path.join("wikiaves_data", f"{nome_cientifico}_grid.csv"), index=False)
-        logging.info(f"Data extracted from grid and saved to '{nome_cientifico}_grid.csv' with {len(df)} records")
+        nome_cientifico = df["Nome Cientifico"].iloc[0].lower().replace(" ", "_")
+        filename = f"{nome_cientifico}_({current_time})_grid.csv"
+    
+    filepath = os.path.join("wikiaves_data", filename)
+    df.to_csv(filepath, index=False)
+
+    logging.info(f"Data from grid saved to '{filename}' ({len(df)} records)")
