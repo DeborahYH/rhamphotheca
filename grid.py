@@ -75,20 +75,20 @@ def extract_records(items, records):
     for item in items.values():
         records.append({
             "ID": item["id"],
-            "Tipo de Registro": item["tipo"],
-            "Autor": item["autor"],
-            "Município": item["local"],
-            "Data do Registro": item["data"],
-            "Nome Popular": item["sp"]["nvt"],
-            "Nome Cientifico": item["sp"]["nome"],
+            "media_type": item["tipo"],
+            "author": item["autor"],
+            "municipality": item["local"],
+            "record_date": item["data"],
+            "common_name": item["sp"]["nvt"],
+            "scientific_name": item["sp"]["nome"],
         })
-    
+
     return records
 
 def save_grid(df, s, extraction_date):  
     """ 
     Saves the data extracted to a CSV file.
-    The filename will be on the location or scientific name, dpending on whether parameter `s` is provided
+    The filename will be on the location or scientific name, depending on whether parameter `s` is provided
 
     Parameters
     ---------- 
@@ -103,13 +103,13 @@ def save_grid(df, s, extraction_date):
     """
     
     if s is None:
-        municipio = df["Município"].iloc[0].lower().replace(" ", "_")
-        nome, _, estado = municipio.partition("/")
-        filename = f"{nome}_({estado})_({extraction_date})_grid.csv"
+        location = df["municipality"].iloc[0].lower().replace(" ", "_")
+        municipality, _, state = location.partition("/")
+        filename = f"{municipality}_({state})_({extraction_date})_grid.csv"
     else:
-        nome_cientifico = df["Nome Cientifico"].iloc[0].lower().replace(" ", "_")
-        filename = f"{nome_cientifico}_({extraction_date})_grid.csv"
-    
+        scientific_name = df["scientific_name"].iloc[0].lower().replace(" ", "_")
+        filename = f"{scientific_name}_({extraction_date})_grid.csv"
+
     filepath = os.path.join("wikiaves_data", filename)
     df.to_csv(filepath, index=False)
 
