@@ -9,13 +9,13 @@ from urllib.parse import urlparse
 from tkinter import filedialog as fd
 from CTkMessagebox import CTkMessagebox
 
-logging.basicConfig(level=logging.INFO, 
-                    format="{asctime} {levelname} - {message}",
-                    style="{", 
-                    datefmt="%d/%m/%Y %H:%M",
-                    filename="wiki_aves.log",
-                    encoding="utf-8",
-                    filemode="a")
+logging.basicConfig(level = logging.INFO, 
+                    format = "{asctime} {levelname} - {message}",
+                    style = "{", 
+                    datefmt = "%d/%m/%Y %H:%M",
+                    filename = "wiki_aves.log",
+                    encoding = "utf-8",
+                    filemode = "a")
 
 
 def radio_event():
@@ -28,13 +28,13 @@ def radio_event():
 
     # Disables the button to select a file if the user chooses to enter a URL
     if data_source.get() == 1:
-        entry.configure(state="normal")
-        open_button.configure(state="disabled")
+        entry.configure(state = "normal")
+        open_button.configure(state = "disabled")
 
     # Disables the URL entry field if the user chooses to upload a CSV file
     elif data_source.get() == 2:
-        entry.configure(state="disabled")
-        open_button.configure(state="normal")
+        entry.configure(state = "disabled")
+        open_button.configure(state = "normal")
 
 def select_file():
     """
@@ -45,8 +45,8 @@ def select_file():
     # Opens a file dialog
     global file_location
     file_location = fd.askopenfilename(
-        title='Open a file',
-        filetypes=(('csv files', '*.csv'),))
+        title = 'Open a file',
+        filetypes = (('csv files', '*.csv'),))
 
     # Extracts the selected file's name
     filename = file_location.split("/")[-1]
@@ -54,7 +54,7 @@ def select_file():
     # Displays the file's name on the GUI
     if filename:
         filename_lbl.configure(text=f"Selected file: {filename}",
-                                font=("Helvetica", 13))
+                                font = ("Helvetica", 13))
 
 def send_parameters(url):
     """
@@ -78,14 +78,14 @@ def send_parameters(url):
         CTkMessagebox(**messagebox_config)
         return
     else:
-        t=dict_url["t"]
-        c=dict_url["c"]
+        t = dict_url["t"]
+        c = dict_url["c"]
 
     if "s" in dict_url:
-        s=dict_url["s"]
-        extract_grid(t=t, c=c, s=s)
+        s = dict_url["s"]
+        extract_grid(t = t, c = c, s = s)
     else:
-        extract_grid(t=t, c=c)
+        extract_grid(t = t, c = c)
 
     logging.info(f"Extraction - URL requested: {url}")
 
@@ -131,6 +131,16 @@ def submit(data_source):
 
 # CUSTOM TKINTER GUI
 
+button_color = "#1F2D99"
+button_hover = "#2D40D3"
+radio_border = "#525252"
+radio_hover = "#1F2D99"
+radio_select = "#2D40D3"
+font_title = ("Helvetica", 18, "bold")
+font_button = ("Helvetica", 16, "bold")
+font_text = ("Helvetica", 15)
+msg_window = "#E9E9E9"
+
 # Creates the main window on the center of the screen
 app = ctk.CTk()
 app.title("Wiki Aves - Menu")
@@ -142,90 +152,101 @@ x = (screen_width // 2) - (window_width // 2)
 y = (screen_height // 2) - (window_height // 2)
 app.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
+
+# MENU ELEMENTS
+
+# Radio button variable
+data_source = tkinter.IntVar(value = 0)
+
+# Radio button configuration
+radio_config = {
+    "radiobutton_width": 15,
+    "radiobutton_height": 15,
+    "border_color": radio_border,
+    "fg_color": radio_hover,
+    "hover_color": radio_select,
+    "border_width_unchecked": 2,
+    "border_width_checked": 3,
+    "font": font_text,
+    "variable": data_source,
+    "command": radio_event
+}
+
+# CTkMessagebox configuration
 messagebox_config = {"master": app,
                     "width": 330,
-                    "bg_color": "#E9E9E9",
-                    "fg_color": "#E9E9E9",
+                    "bg_color": msg_window,
+                    "fg_color": msg_window,
                     "title": "Erro",
-                    "font": ("Helvetica", 15, "bold"),
+                    "font": font_button,
                     "message": "",
                     "justify": "center",
                     "icon": "cancel",
                     "icon_size": (30, 30),
                     "button_width": 50,
-                    "button_color": "#E5521D",
+                    "button_color": button_color,
+                    "button_hover_color": button_hover,
                     "border_width": 2,
                     "corner_radius": 5}
 
-
-# MENU ELEMENTS
-
-# Radio button variable
-data_source = tkinter.IntVar(value=0)
-
 # Wiki Aves logo
-logo = ctk.CTkImage(light_image = Image.open('wiki_aves.png'), dark_image = Image.open('wiki_aves.png'), size=(70,70))
+logo = ctk.CTkImage(light_image = Image.open('wiki_aves.png'), dark_image = Image.open('wiki_aves.png'), size = (70,70))
 lbl_logo = ctk.CTkLabel(app, text="", image = logo)
 lbl_logo.place(relx = 0.5, rely = 0.15, anchor = 'center')
 
 # Radio buttons let the user define whether the data will be extracted from a URL or from a .csv file
 radio_lbl = ctk.CTkLabel(app, 
-                        font=("Helvetica", 18, "bold"),
-                        text="Fonte de dados:")
+                        font = font_title,
+                        text = "Fonte de Dados:")
 radio_lbl.place(relx=0.2, rely = 0.3)
+
 radio_btn1 = ctk.CTkRadioButton(app, 
-                                radiobutton_width=15,
-                                radiobutton_height=15,
-                                border_width_unchecked=2,
-                                border_width_checked=4,
-                                font=("Helvetica", 15),
-                                text="URL",
-                                variable=data_source, 
-                                value=1,
-                                command=radio_event)
-radio_btn1.place(relx=0.2, rely = 0.37)
+                                text = "URL",
+                                value = 1,
+                                **radio_config)
+radio_btn1.place(relx = 0.2, rely = 0.37)
 
 # URL entry field
 entry = ctk.CTkEntry(app, 
                     width=300,
-                    font=("Helvetica", 15),
+                    font=font_text,
                     state="disabled")
-entry.place(relx=0.2, rely = 0.42)
+entry.place(relx = 0.2, rely = 0.42)
 
 radio_btn2 = ctk.CTkRadioButton(app,
-                                radiobutton_width=15,
-                                radiobutton_height=15,
-                                border_width_unchecked=2,
-                                border_width_checked=4,
-                                font=("Helvetica", 15),
-                                text="Arquivo CSV",
-                                variable=data_source,
-                                value=2,
-                                command=radio_event)
-radio_btn2.place(relx=0.2, rely = 0.52)
+                                text = "Arquivo CSV",
+                                value = 2,
+                                **radio_config)
+radio_btn2.place(relx = 0.2, rely = 0.52)
 
 # Button lets the user select a .csv file
 open_button = ctk.CTkButton(app,
-                            height=30,
-                            text='Selecione um arquivo:',
-                            text_color="white",
-                            font=("Helvetica", 16, "bold"), 
-                            state="disabled",
-                            command=select_file
+                            height = 30,
+                            fg_color = button_color,
+                            hover_color = button_hover,
+                            text = 'Selecione um arquivo',
+                            text_color = "white",
+                            text_color_disabled = "#E4E4E4",
+                            font = font_button, 
+                            state = "disabled",
+                            command = select_file
                         )
-open_button.place(relx=0.2, rely = 0.57)
+open_button.place(relx = 0.2, rely = 0.57)
 
 # Displays the selected file's name
 filename_lbl = ctk.CTkLabel(app, text="")
-filename_lbl.place(relx=0.2, rely = 0.63)
+filename_lbl.place(relx = 0.2, rely = 0.63)
 
 # Button calls the function to extract data based on the user's choices
 submit_btn = ctk.CTkButton(app, 
-                            height=30,
-                            text="Enviar",
-                            font=("Helvetica", 16, "bold"),
-                            text_color="white",
-                            command=lambda: submit(data_source.get()))
+                            height = 35,
+                            width = 80,
+                            fg_color = button_color,
+                            hover_color = button_hover,
+                            text = "Enviar",
+                            font = font_button,
+                            text_color = "white",
+                            command = lambda: submit(data_source.get()))
 submit_btn.place(relx=0.5, rely = 0.8, anchor = 'center')
 
 app.mainloop()
