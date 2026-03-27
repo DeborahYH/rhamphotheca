@@ -66,6 +66,11 @@ def send_parameters(url):
         URL containing the parameters to be extracted.
     """
 
+    if url == "":
+        messagebox_config["message"] = "Por favor, insira uma URL."
+        CTkMessagebox(**messagebox_config)
+        return
+    
     dict_url = {}
     
     result = urllib.parse.parse_qs(urlparse(url).query)
