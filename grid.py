@@ -20,10 +20,27 @@ HEADERS = {
 
 def define_params(tm, t, c, page, s=None):
     """
-    Defines the URL parameters for the request.
+    Defines the URL parameters used in the request.
+
+    Parameters
+    ----------
+    tm : str
+        Type of media ('f' for photos and 's' for sounds)
+    t : str
+        The value 'c' appears to be the default and does not affect the response.
+    c : str
+        City ID
+    page : int
+        Page number for pagination
+    s : str, optional
+        Species ID
+
+    Returns
+    ----------
+    params : dict
+        Dictionary containing the URL parameters used in the request.
     """
 
-    # Sets the URL parameters for the request
     params = {
     "tm": tm,
     "t": t,
@@ -36,9 +53,23 @@ def define_params(tm, t, c, page, s=None):
     
     return params
 
-def extract_records(items, records, page):
+def extract_records(items, records):
     """
     Extracts the desired data from each record and appends it to the list of records.
+
+    Parameters
+    ----------
+    items : dict
+        Dictionary containing the records returned by the request.
+    records : list
+        List of extracted records.
+    page : int
+        The page number for the current iteration.
+
+    Returns
+    -------
+    records : list
+        Updated list of extracted records.
     """
 
     for item in items.values():
@@ -50,14 +81,25 @@ def extract_records(items, records, page):
             "Data do Registro": item["data"],
             "Nome Popular": item["sp"]["nvt"],
             "Nome Cientifico": item["sp"]["nome"],
-            "Página": page,
         })
     
     return records
 
-def save_grid(df, s, extraction_date):    
+def save_grid(df, s, extraction_date):  
     """ 
-    Saves the data to a CSV file based on the location or scientific name
+    Saves the data extracted to a CSV file.
+    The filename will be on the location or scientific name, dpending on whether parameter `s` is provided
+
+    Parameters
+    ---------- 
+    df : pd.DataFrame
+        Dataframe containing data from the extracted records.
+    s : str
+        URL parameter used to determine how the filename will be defined.
+        If s is not provided, the extraction will be based on the location. 
+        If s is provided, the extraction will be based on the species.
+    extraction_date : str
+        Date of the data extraction.
     """
     
     if s is None:
@@ -76,7 +118,15 @@ def save_grid(df, s, extraction_date):
 
 def extract_grid(t, c, s=None):
     """
-    Extracts data from the pages containing individual records.
+    Extracts the individual records from each page.
+
+    Parameters
+    ----------
+    t : str
+    c : str
+        City ID
+    s : str, optional 
+        Species ID
     """
 
     extraction_date = dt.datetime.now().strftime('%d-%m-%Y')
@@ -107,6 +157,7 @@ def extract_grid(t, c, s=None):
             if response.status_code != 200:
                 break
             
+            # Parses the JSON response and extract the records
             try:
                 data = response.json()
                 items = data.get("registros", {}).get("itens", {})
@@ -118,7 +169,7 @@ def extract_grid(t, c, s=None):
             if not items:
                 break 
 
-            extract_records(items, records, page)
+            extract_records(items, records)
 
             time.sleep(random.uniform(5, 20))
 
@@ -126,4 +177,5 @@ def extract_grid(t, c, s=None):
 
     df = pd.DataFrame(records)
 
+    # Saves the extracted data to a CSV file
     save_grid(df, s, extraction_date)
