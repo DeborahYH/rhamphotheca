@@ -97,7 +97,7 @@ def send_parameters(url):
 def send_file():
     """
     Validates and sends the file selected by the user to be processed by extract_cards().
-    If no file is selected, prints a message to the console and returns without calling extract_cards.
+    If no file is selected, shows an error message and returns without calling extract_cards.
     """
 
     if filename_lbl.cget("text") == "":
