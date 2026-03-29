@@ -16,38 +16,38 @@ HEADERS = {"User-Agent": (
             "AppleWebKit/537.36 (KHTML, like Gecko) "
             "Chrome/120.0.0.0 Safari/537.36")}
 
-COLUMN_MAP = {"id": "ID",
-            "tipo de registro": "Tipo de Registro",
-            "especie_comum": "Nome Popular", 
-            "nome_cientifico": "Nome Cientifico",
-            "assunto(s)": "Assunto",
-            "ação principal": "Ação Principal",
-            "sexo": "Sexo",
-            "idade": "Idade",
-            "autor": "Autor",
-            "município": "Município",
-            "feita em": "Data do Registro",
-            "publicada em": "Data de Publicação",
-            "câmera": "Câmera",
-            "observações do autor": "Observações do Autor",
-            "guiado(a) por": "Guia",
-            "tipo de som": "Tipo de Som",
-            "emissor do som": "Emissor do Som",
-            "emissor foi avistado?": "Emissor Avistado",
-            "contexto": "Contexto",
-            "após playback?": "Após Playback",
-            "gravado em": "Data de Gravação",
-            "tamanho do arquivo": "Tamanho do Arquivo",
-            "duração": "Duração",
-            "gravador": "Gravador",
-            "microfone": "Microfone",}
+COLUMN_MAP = {"id": "id",
+            "tipo de registro": "media_type",
+            "especie_comum": "common_name", 
+            "nome_cientifico": "scientific_name",
+            "assunto(s)": "subject",
+            "ação principal": "main_action",
+            "sexo": "sex",
+            "idade": "age",
+            "autor": "author",
+            "município": "location",
+            "feita em": "photo_date",
+            "publicada em": "publication_date",
+            "câmera": "camera",
+            "observações do autor": "author_notes",
+            "guiado(a) por": "guide",
+            "tipo de som": "sound_type",
+            "emissor do som": "sound_emitter",
+            "emissor foi avistado?": "emitter_seen",
+            "contexto": "context",
+            "após playback?": "after_playback",
+            "gravado em": "recording_date",
+            "tamanho do arquivo": "file_size",
+            "duração": "duration",
+            "gravador": "recorder",
+            "microfone": "microphone",}
 
 
-def request_card(registro_id):
+def request_card(record_id):
     try:
 
         # Extracts the HTML code of each card
-        response = requests.get(f"{BASE_URL}{registro_id}", 
+        response = requests.get(f"{BASE_URL}{record_id}", 
                                 headers=HEADERS,
                                 timeout=(5,10))
         
@@ -56,18 +56,18 @@ def request_card(registro_id):
         return response.text
 
     except requests.exceptions.Timeout:
-        logging.error(f"Timeout for ID {registro_id}")
+        logging.error(f"Timeout for ID {record_id}")
         return None
     
     except requests.exceptions.HTTPError as e:
-        logging.error(f"HTTP error for ID {registro_id}: {e}")
+        logging.error(f"HTTP error for ID {record_id}: {e}")
         return None
     
     except requests.exceptions.RequestException as e:
-        logging.error(f"Request failed for ID {registro_id}: {e}")
+        logging.error(f"Request failed for ID {record_id}: {e}")
         return None
 
-def extract_card_data(soup, registro_id, tipo):
+def extract_data(soup, record_id, media_type):
 
     # HTML portion containing the desired data
     div_data = soup.find("div", class_="wa-lista-detalhes")
@@ -76,25 +76,25 @@ def extract_card_data(soup, registro_id, tipo):
         return None
     
     # Extracts the value from 'Nome Popular'
-    nome_popular_tag = div_data.find("a", class_="wa-id")
-    if nome_popular_tag:
-        nome_popular = nome_popular_tag.text.strip()
+    common_name_tag = div_data.find("a", class_="wa-id")
+    if common_name_tag:
+        common_name = common_name_tag.text.strip()
     else:
-        nome_popular = ""
+        common_name = ""
 
     # Extracts the value from 'Nome Cientifico'
-    nome_cientifico_tag = div_data.find("i")
-    if nome_cientifico_tag:
-        nome_cientifico = nome_cientifico_tag.text.strip()
+    scientific_name_tag = div_data.find("i")
+    if scientific_name_tag:
+        scientific_name = scientific_name_tag.text.strip()
     else:
-        nome_cientifico = ""
+        scientific_name = ""
         
     # Dictionary containing the data from each card
     record_dict = {
-        "id": registro_id,
-        "tipo de registro": tipo,
-        "especie_comum": nome_popular,
-        "nome_cientifico": nome_cientifico,
+        "id": record_id,
+        "tipo_registro": media_type,
+        "especie_comum": common_name,
+        "nome_cientifico": scientific_name,
     }
 
     # Extracts the value from miscellaneous fields
@@ -115,7 +115,6 @@ def extract_card_data(soup, registro_id, tipo):
             value = sibling.strip() if sibling else ""
 
         record_dict[label] = value
-
     return record_dict
 
 def save_cards(record_data, file_input, extraction_date):
@@ -124,8 +123,10 @@ def save_cards(record_data, file_input, extraction_date):
     """
 
     # Extracts the file name to be used in the new file 
-    file_name = file_input.split("_(")[0]
-
+    base_name = os.path.basename(file_input)
+    file_name = base_name.split("_(")[0]
+    print(base_name)
+    print(file_name)
     # Converts the list of dictionaries to a dataframe
     df = pd.DataFrame(record_data)
 
@@ -150,10 +151,10 @@ def extract_cards(file_input):
         for row in reader:
 
             # Extracts basic data to be included in the new .csv file
-            registro_id = row["id"]
-            tipo = row["media_type"]
+            record_id = row["id"]
+            media_type = row["media_type"]
             
-            response_html = request_card(registro_id)
+            response_html = request_card(record_id)
 
             if response_html is None:
                 continue
@@ -161,7 +162,7 @@ def extract_cards(file_input):
             soup = BeautifulSoup(response_html, "html.parser")
 
             # Extracts the data from each card
-            record_dict = extract_card_data(soup, registro_id, tipo)
+            record_dict = extract_data(soup, record_id, media_type)
 
             # Adds the data from each card to the list
             if record_dict is not None:
