@@ -53,7 +53,7 @@ def select_file():
 
     # Displays the file's name on the GUI
     if filename:
-        filename_lbl.configure(text=f"Selected file: {filename}",
+        filename_lbl.configure(text=f"Arquivo: {filename}",
                                 font = ("Helvetica", 13))
 
 def send_parameters(url):
