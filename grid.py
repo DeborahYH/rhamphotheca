@@ -74,7 +74,7 @@ def extract_records(items, records):
 
     for item in items.values():
         records.append({
-            "ID": item["id"],
+            "id": item["id"],
             "media_type": item["tipo"],
             "author": item["autor"],
             "municipality": item["local"],
