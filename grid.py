@@ -77,7 +77,7 @@ def extract_records(items, records):
             "id": item["id"],
             "media_type": item["tipo"],
             "author": item["autor"],
-            "municipality": item["local"],
+            "location": item["local"],
             "record_date": item["data"],
             "common_name": item["sp"]["nvt"],
             "scientific_name": item["sp"]["nome"],
