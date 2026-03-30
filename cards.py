@@ -17,7 +17,7 @@ HEADERS = {"User-Agent": (
             "Chrome/120.0.0.0 Safari/537.36")}
 
 COLUMN_MAP = {"id": "id",
-            "tipo de registro": "media_type",
+            "tipo_registro": "media_type",
             "especie_comum": "common_name", 
             "nome_cientifico": "scientific_name",
             "assunto(s)": "subject",
