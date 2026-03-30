@@ -44,6 +44,19 @@ COLUMN_MAP = {"id": "id",
 
 
 def request_card(record_id):
+    """
+    Makes a request to the URL of the card and returns the HTML content.
+    Parameters
+    ----------
+    record_id : str
+        The ID of the record/card being requested.
+
+    Returns
+    -------
+    response.text : str
+        The HTML content of the card.
+    """
+
     try:
 
         # Extracts the HTML code of each card
@@ -68,7 +81,24 @@ def request_card(record_id):
         return None
 
 def extract_data(soup, record_id, media_type):
+    """
+    Extracts data from a single card.
 
+    Parameters
+    ----------
+    soup : BeautifulSoup object
+        Refers to the card's parsed HTML content.
+    record_id : str
+        The ID of the record being extracted.
+    media_type : str
+        The type of the media (photo or sound).
+    
+    Returns
+    -------
+    record_dict : dict
+        Dictionary containing the data extracted from the card.
+    """
+    
     # HTML portion containing the desired data
     div_data = soup.find("div", class_="wa-lista-detalhes")
     
@@ -115,18 +145,27 @@ def extract_data(soup, record_id, media_type):
             value = sibling.strip() if sibling else ""
 
         record_dict[label] = value
+
     return record_dict
 
-def save_cards(record_data, file_input, extraction_date):
+def save_cards(record_data, file_input):
     """
     Saves the extracted data from the cards into a new .csv file.
+
+    Parameters
+    ----------
+    record_data : list
+        List of dictionaries containing the data extracted from each card.
+    file_input : str
+        Path to the input CSV file.
     """
+
+    extraction_date = dt.datetime.now().strftime('%d-%m-%Y')
 
     # Extracts the file name to be used in the new file 
     base_name = os.path.basename(file_input)
     file_name = base_name.split("_(")[0]
-    print(base_name)
-    print(file_name)
+
     # Converts the list of dictionaries to a dataframe
     df = pd.DataFrame(record_data)
 
@@ -138,8 +177,14 @@ def save_cards(record_data, file_input, extraction_date):
 
 
 def extract_cards(file_input):
-
-    extraction_date = dt.datetime.now().strftime('%d-%m-%Y')
+    """
+    Extracts the data from the cards and saves it in a new .csv file.
+    
+    Parameters
+    ----------
+    file_input : str
+        Path to the input CSV file.
+    """
 
     # List containing the data from all cards
     record_data = []
@@ -171,4 +216,4 @@ def extract_cards(file_input):
             wait = random.uniform(5, 20)
             time.sleep(wait)
 
-    save_cards(record_data, file_input, extraction_date)
+    save_cards(record_data, file_input)
