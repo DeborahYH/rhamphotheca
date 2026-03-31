@@ -40,7 +40,9 @@ COLUMN_MAP = {"id": "id",
             "tamanho do arquivo": "file_size",
             "duração": "duration",
             "gravador": "recorder",
-            "microfone": "microphone",}
+            "microfone": "microphone",
+            "ave com anilha/pulseira?": "banded",
+            "provável soltura/escape": "possible_release"}
 
 
 def request_card(record_id):
