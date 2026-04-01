@@ -19,9 +19,32 @@ def transform_data(df_cards):
         if column in df_cards.columns:
             df_cards[column] = df_cards[column].map(boolean_dict)   
         else:
-            df_cards[column] = np.nan 
+            df_cards[column] = np.nan
 
-with open ("wikiaves_data/tachyphonus_coronatus_(31-03-2026)_cards.csv", "r", encoding="utf-8") as file:
+    # Checks if 'rec_datetime' contains values in the format "DD/MM/YYYY HH:MM" and splits it into separate columns
+    if df_cards["rec_datetime"].str.contains(":").any():
+        split = df_cards["rec_datetime"].str.split(" ")
+        df_cards["rec_date"] = split.str.get(0)
+        df_cards["rec_time"] = split.str.get(1)
+
+    # Treats values in DD/MM/YYYY HH:MM format
+    full_format = pd.to_datetime(df_cards["rec_datetime"], format="%d/%m/%Y %H:%M", errors="coerce")
+
+    # Treats values in DD/MM/YYYY format
+    date_format = pd.to_datetime(df_cards["rec_datetime"], format="%d/%m/%Y", errors="coerce")
+
+    # Merges both parsed formats, preventing data loss
+    df_cards["rec_datetime"] = full_format.fillna(date_format)
+    
+    # Converts the 'rec_date' and 'rec_time' columns to date/time format
+    df_cards["rec_date"] = pd.to_datetime(df_cards["rec_date"], errors="coerce", dayfirst=True)
+    df_cards["rec_time"] = pd.to_datetime(df_cards["rec_time"], format="%H:%M", errors="coerce").dt.time
+
+    # Converts the 'photo_date' and 'publication_date' columns to date format
+    df_cards["photo_date"] = pd.to_datetime(df_cards["photo_date"], errors="coerce", dayfirst=True).dt.date
+    df_cards["publication_date"] = pd.to_datetime(df_cards["publication_date"], errors="coerce", dayfirst=True).dt.date
+    
+with open ("wikiaves_data/tinamus_solitarius_(01-04-2026)_cards.csv", "r", encoding="utf-8") as file:
     df_cards = pd.read_csv(file)
 
 transform_data(df_cards)
