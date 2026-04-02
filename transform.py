@@ -44,7 +44,17 @@ def transform_data(df_cards):
     df_cards["photo_date"] = pd.to_datetime(df_cards["photo_date"], errors="coerce", dayfirst=True).dt.date
     df_cards["publication_date"] = pd.to_datetime(df_cards["publication_date"], errors="coerce", dayfirst=True).dt.date
     
-with open ("wikiaves_data/tinamus_solitarius_(01-04-2026)_cards.csv", "r", encoding="utf-8") as file:
+    df_cards["duration"] = df_cards['duration'].str.removesuffix(" segundo(s)").astype("Int64")
+
+    mask_mb = df_cards["file_size"].str.contains("MB", na=False)
+    df_cards.loc[mask_mb, "file_size"] = (df_cards.loc[mask_mb, "file_size"].str.removesuffix(" MB").astype("Float64") * 1024)
+
+    mask_kb = df_cards["file_size"].str.contains("KB", na=False)
+    df_cards.loc[mask_kb, "file_size"] = df_cards.loc[mask_kb, "file_size"].str.removesuffix(" KB").astype("Float64")
+
+    df_cards["file_size"] = df_cards["file_size"].astype("Float64")
+
+with open ("wikiaves_data/tinamus_solitarius_(02-04-2026)_cards.csv", "r", encoding="utf-8") as file:
     df_cards = pd.read_csv(file)
 
 transform_data(df_cards)
