@@ -21,7 +21,7 @@ def transform_data(df_cards):
         else:
             df_cards[column] = np.nan
 
-    # Checks if 'rec_datetime' contains values in the format "DD/MM/YYYY HH:MM" and splits it into separate columns
+    # If 'rec_datetime' has values in the format "DD/MM/YYYY HH:MM", it splits them into separate columns
     if df_cards["rec_datetime"].str.contains(":").any():
         split = df_cards["rec_datetime"].str.split(" ")
         df_cards["rec_date"] = split.str.get(0)
@@ -53,6 +53,20 @@ def transform_data(df_cards):
     df_cards.loc[mask_kb, "file_size"] = df_cards.loc[mask_kb, "file_size"].str.removesuffix(" KB").astype("Float64")
 
     df_cards["file_size"] = df_cards["file_size"].astype("Float64")
+
+    # Explodes the 'subject' column into separate rows
+    df_cards['subject'] = df_cards['subject'].str.split(r"\s*,\s*")
+    df_cards_exploded = df_cards.explode(column='subject')
+
+    # Creates a dataframe identifying different subjects
+    df_subjects = pd.DataFrame({'subject_id': [1, 2, 3, 4, 5],
+                                'subject': ['Ave', 'Alimento', 'Ovo', 'Ninho', 'Bando']})
+
+    # Creates a junction table connecting the original dataframe with df_subjects
+    df_cards_subjects = df_cards_exploded[['id', 'subject']].merge(df_subjects)
+
+    # Removes the 'subject' column the original dataframe, as it will be handled in a separate table
+    df_cards_exploded = df_cards_exploded.drop('subject', axis='columns')
 
 with open ("wikiaves_data/tinamus_solitarius_(02-04-2026)_cards.csv", "r", encoding="utf-8") as file:
     df_cards = pd.read_csv(file)
