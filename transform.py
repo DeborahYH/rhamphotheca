@@ -56,17 +56,27 @@ def transform_data(df_cards):
 
     # Explodes the 'subject' column into separate rows
     df_cards['subject'] = df_cards['subject'].str.split(r"\s*,\s*")
-    df_cards_exploded = df_cards.explode(column='subject')
+    df_cards['sound_type'] = df_cards['sound_type'].str.split(r"\s*,\s*")
+    df_cards_exploded1 = df_cards.explode(column='subject')
+    df_cards_exploded2 = df_cards_exploded1.explode(column='sound_type')
 
     # Creates a dataframe identifying different subjects
     df_subjects = pd.DataFrame({'subject_id': [1, 2, 3, 4, 5],
                                 'subject': ['Ave', 'Alimento', 'Ovo', 'Ninho', 'Bando']})
 
+    df_sounds = pd.DataFrame({'sound_id': [1, 2, 3, 4, 5, 6, 7],
+                                    'sound_type': ['Canto', 'Chamado/Apelo', 'Dueto', 'Canto de madrugada/entardecer', 
+                                                    'Tamborilado', 'Bater de asas', 'Estalar de bico']}) 
+    
     # Creates a junction table connecting the original dataframe with df_subjects
-    df_cards_subjects = df_cards_exploded[['id', 'subject']].merge(df_subjects)
+    df_cards_subjects = df_cards_exploded2[['id', 'subject']].merge(df_subjects)
+
+    # Creates a junction table connecting the original dataframe with df_sounds
+    df_cards_sounds = df_cards_exploded2[['id', 'sound_type']].merge(df_sounds)
+
 
     # Removes the 'subject' column the original dataframe, as it will be handled in a separate table
-    df_cards_exploded = df_cards_exploded.drop('subject', axis='columns')
+    df_cards_exploded2 = df_cards_exploded2.drop(['subject', 'sound_type'], axis='columns')
 
 with open ("wikiaves_data/tinamus_solitarius_(02-04-2026)_cards.csv", "r", encoding="utf-8") as file:
     df_cards = pd.read_csv(file)
