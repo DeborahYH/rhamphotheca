@@ -74,13 +74,13 @@ def extract_records(items, records):
 
     for item in items.values():
         records.append({
-            "id": item["id"],
+            "record_id": item["id"],
             "media_type": item["tipo"],
-            "author": item["autor"],
-            "location": item["local"],
-            "record_date": item["data"],
-            "common_name": item["sp"]["nvt"],
             "scientific_name": item["sp"]["nome"],
+            "common_name": item["sp"]["nvt"],
+            "record_date": item["data"],
+            "location": item["local"],
+            "author": item["autor"],
         })
 
     return records
