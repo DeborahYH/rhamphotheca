@@ -16,7 +16,7 @@ HEADERS = {"User-Agent": (
             "AppleWebKit/537.36 (KHTML, like Gecko) "
             "Chrome/120.0.0.0 Safari/537.36")}
 
-COLUMN_MAP = {"id": "id",
+COLUMN_MAP = {"id": "record_id",
             "tipo_registro": "media_type",
             "especie_comum": "common_name", 
             "nome_cientifico": "scientific_name",
@@ -171,8 +171,13 @@ def save_cards(record_data, file_input):
     # Converts the list of dictionaries to a dataframe
     df = pd.DataFrame(record_data)
 
+    # Renames and reorders the columns
     df = df.rename(columns=COLUMN_MAP)
-
+    columns_order = ['record_id', 'media_type', 'subject', 'scientific_name', 'common_name', 'sex', 'age', 'main_action', 'photo_date', 'publication_date', 'location', 'camera',  'author', 'author_notes', 'guide', 
+                    'sound_type', 'sound_emitter', 'emitter_seen', 'context', 'after_playback', 'rec_datetime', 'recorder', 'microphone', 'file_size', 'duration',
+                    'banded', 'possible_release']
+    df = df.reindex(columns=columns_order)
+    
     # Creates a csv file inside the wikiaves_data folder
     df.to_csv(os.path.join("wikiaves_data", f"{file_name}_({extraction_date})_cards.csv"), index=False)
     logging.info(f"Data from cards saved to '{file_name}_({extraction_date})_cards.csv' with {len(df)} records")
@@ -198,7 +203,7 @@ def extract_cards(file_input):
         for row in reader:
 
             # Extracts basic data to be included in the new .csv file
-            record_id = row["id"]
+            record_id = row["record_id"]
             media_type = row["media_type"]
             
             response_html = request_card(record_id)
