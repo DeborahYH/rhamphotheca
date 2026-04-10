@@ -187,8 +187,8 @@ def build_junctions(df):
     df_sounds_bridge = df_expanded2[['record_id', 'sound_type']].merge(df_sounds)
     df_sounds_bridge = df_sounds_bridge[['record_id', 'sound_id', 'sound_type']]
 
-    # Removes the 'subject' column the original dataframe, as it will be handled in a separate table
-    df_clean = df_expanded2.drop(['subject', 'sound_type'], axis='columns')
+    # Removes the columns that will be handled in separate tables and drops duplicate rows created by explode()
+    df_clean = df_expanded2.drop(['subject', 'sound_type'], axis='columns').drop_duplicates(subset=['record_id'])
 
     return df_clean
 
@@ -217,4 +217,3 @@ def transform_data(df):
         
     # Reorders the columns
     df_final = df_junctions.reindex(columns=COLUMNS_ORDER)
-    df_final.to_csv(os.path.join("wikiaves_data", "transformed_data.csv"), index=False)
