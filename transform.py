@@ -29,17 +29,25 @@ SOUNDS = {1: 'Canto',
         7: 'Estalar de bico'}
 
 
-def transform_data(df):
-
-    df = df.copy()
+def clean_metadata(df):
 
     # Standardizes the values in the 'media_type' column to be more descriptive
     df["media_type"] = df["media_type"].map(MEDIA_TYPES)
 
-    location = df["location"].str.split("/", expand=True)
-    df["municipality"] = location[0]
-    df["state"] = location[1]
+    df["duration"] = df['duration'].str.removesuffix(" segundo(s)").astype("Int64")
 
+    mask_mb = df["file_size"].str.contains("MB", na=False)
+    df.loc[mask_mb, "file_size"] = (df.loc[mask_mb, "file_size"].str.removesuffix(" MB").astype("Float64") * 1024)
+
+    mask_kb = df["file_size"].str.contains("KB", na=False)
+    df.loc[mask_kb, "file_size"] = df.loc[mask_kb, "file_size"].str.removesuffix(" KB").astype("Float64")
+
+    df["file_size"] = df["file_size"].astype("Float64")
+
+    return df
+
+def map_boolean(df):
+    
     # Converts the values in the selected columns to boolean values
     for column in BOOLEAN_COLUMNS:
         if column in df.columns:
@@ -47,6 +55,18 @@ def transform_data(df):
         else:
             df[column] = np.nan
 
+    return df
+
+def extract_location(df):
+    
+    location = df["location"].str.split("/", expand=True)
+    df["municipality"] = location[0]
+    df["state"] = location[1]
+
+    return df
+
+def parse_datetime(df):
+    
     # If 'rec_datetime' has values in the format "DD/MM/YYYY HH:MM", it splits them into separate columns
     if df["rec_datetime"].str.contains(":").any():
         split = df["rec_datetime"].str.split(" ")
@@ -69,16 +89,10 @@ def transform_data(df):
     # Converts the 'photo_date' and 'publication_date' columns to date format
     df["photo_date"] = pd.to_datetime(df["photo_date"], errors="coerce", dayfirst=True).dt.date
     df["publication_date"] = pd.to_datetime(df["publication_date"], errors="coerce", dayfirst=True).dt.date
-    
-    df["duration"] = df['duration'].str.removesuffix(" segundo(s)").astype("Int64")
 
-    mask_mb = df["file_size"].str.contains("MB", na=False)
-    df.loc[mask_mb, "file_size"] = (df.loc[mask_mb, "file_size"].str.removesuffix(" MB").astype("Float64") * 1024)
+    return df
 
-    mask_kb = df["file_size"].str.contains("KB", na=False)
-    df.loc[mask_kb, "file_size"] = df.loc[mask_kb, "file_size"].str.removesuffix(" KB").astype("Float64")
-
-    df["file_size"] = df["file_size"].astype("Float64")
+def build_junctions(df):
 
     # Explodes the 'subject' and 'sound_type' columns into separate rows
     df['subject'] = df['subject'].str.split(r"\s*,\s*")
@@ -91,22 +105,31 @@ def transform_data(df):
 
     # Creates a junction table connecting the original dataframe with df_subjects
     df_subjects_bridge = df_expanded2[['record_id', 'subject']].merge(df_subjects)
+    df_subjects_bridge = df_subjects_bridge[['record_id', 'subject_id', 'subject']]
 
     # Creates a junction table connecting the original dataframe with df_sounds
     df_sounds_bridge = df_expanded2[['record_id', 'sound_type']].merge(df_sounds)
-
-    df_subjects_bridge.to_csv("wikiaves_data/subjects_bridge.csv", index=False)
-    df_sounds_bridge.to_csv("wikiaves_data/sounds_bridge.csv", index=False)
+    df_sounds_bridge = df_sounds_bridge[['record_id', 'sound_id', 'sound_type']]
 
     # Removes the 'subject' column the original dataframe, as it will be handled in a separate table
-    df_final = df_expanded2.drop(['subject', 'sound_type'], axis='columns')
+    df_clean = df_expanded2.drop(['subject', 'sound_type'], axis='columns')
+
+    return df_clean
+
+def transform_data(df):
+
+    df = df.copy()
+
+    df_metadata = clean_metadata(df)
+
+    df_boolean = map_boolean(df_metadata)
+
+    df_location = extract_location(df_boolean)
     
+    df_datetime = parse_datetime(df_location)
+
+    df_junctions = build_junctions(df_datetime)
+        
     # Reorders the columns
-    df_final = df_final.reindex(columns=COLUMNS_ORDER)
-    df_final.to_csv("wikiaves_data/records.csv", index=False)
+    df_final = df_junctions.reindex(columns=COLUMNS_ORDER)
 
-
-with open ("wikiaves_data/tinamus_solitarius_(09-04-2026)_cards.csv", "r", encoding="utf-8") as file:
-    df = pd.read_csv(file)
-
-transform_data(df)
