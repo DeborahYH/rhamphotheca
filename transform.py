@@ -33,6 +33,34 @@ SOUNDS = {1: 'Canto',
         6: 'Bater de asas', 
         7: 'Estalar de bico'}
 
+def parse_duration(value):
+    """
+    Parameters
+    ----------
+    value : str
+        The value that needs to be parsed.
+    
+    Returns
+    -------
+    recording_duration : int
+        The duration of the recording in seconds.
+    """
+    
+    if not isinstance(value, str):
+        return None
+    
+    # Converts the minutes and seconds inside value and converts them to integers
+    if 'minuto(s)' in value:
+        minutes = int(value.split('minuto(s)')[0].strip())
+        seconds = int(value.split('minuto(s)')[1].split('segundo(s)')[0].strip())
+    else:
+        minutes = 0
+        seconds = int(value.split('segundo(s)')[0].strip())
+    
+    # Standardizes the values to seconds
+    recording_duration = minutes * 60 + seconds
+
+    return recording_duration
 
 def clean_metadata(df):
     """
@@ -51,9 +79,9 @@ def clean_metadata(df):
 
     # Standardizes the values in the 'media_type' column to be more descriptive
     df["media_type"] = df["media_type"].map(MEDIA_TYPES)
-
-    # Cleans the 'duration' column by removing the suffix " segundo(s)"
-    df["duration"] = df['duration'].str.removesuffix(" segundo(s)").astype("Int64")
+    
+    # Converts all values inthe 'duration' column to seconds and removes the string suffixes
+    df["duration"] = df["duration"].apply(parse_duration).astype("Int64")
 
     # Converts values from MB to KB and removes the suffixes from the 'file_size' column
     mask_mb = df["file_size"].str.contains("MB", na=False)
