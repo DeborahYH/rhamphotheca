@@ -64,7 +64,7 @@ def standardize_duration(value):
 
     return recording_duration
 
-def standardize_file_size(df):
+def standardize_file_size(value):
     """
     Standardizes the values in the 'file_size' column to KB.
 
@@ -75,31 +75,26 @@ def standardize_file_size(df):
     
     Returns
     -------
-    df : pandas.DataFrame
-        The dataframe with the 'file_size' column converted to KB.
+    number : float
+        The file_size' value converted to KB.
     """
 
-    df = df.copy()
+    if not isinstance(value, str):
+        return None
 
-    # Ensures all values in the 'file_size' column are strings
-    df["file_size"] = df["file_size"].astype("string")
+    value = value.strip()
 
-    # Creates a dataframe separating the numeric and non-numeric values in different columns
-    extracted = df["file_size"].str.extract(r"([\d\.]+)\s*(MB|KB)")
+    # Converts the values to KB and removes the 'MB' suffixes
+    if "MB" in value:
+        number = float(value.replace("MB", "").strip()) * 1024
+        return number 
 
-    # Converts the numeric values to float
-    values = extracted[0].astype("Float64")
+    # Removes the 'KB' suffix
+    elif "KB" in value:
+        number = float(value.replace("KB", "").strip())
+        return number
 
-    # Converts values measured in MB to KB
-    values[extracted[1] == "MB"] = values[extracted[1] == "MB"] * 1024
-
-    # file_size column receives the converted values
-    df["file_size"] = values
-
-    # Ensures that all values in the 'file_size' column are float values in KB
-    df["file_size"] = df["file_size"].astype("Float64")
-
-    return df
+    return None
 
 def clean_metadata(df):
     """
@@ -123,7 +118,7 @@ def clean_metadata(df):
     df["duration"] = df["duration"].apply(standardize_duration).astype("Int64")
 
     # Standardizes the values in the 'file_size' column to KB
-    df = standardize_file_size(df)
+    df["file_size"] = df["file_size"].apply(standardize_file_size).astype("Float64")
 
     return df
 
