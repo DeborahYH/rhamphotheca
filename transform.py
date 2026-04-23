@@ -33,8 +33,10 @@ SOUNDS = {1: 'Canto',
         6: 'Bater de asas', 
         7: 'Estalar de bico'}
 
-def parse_duration(value):
+def standardize_duration(value):
     """
+    Standardizes the values in the 'duration' column to seconds.
+
     Parameters
     ----------
     value : str
@@ -62,6 +64,43 @@ def parse_duration(value):
 
     return recording_duration
 
+def standardize_file_size(df):
+    """
+    Standardizes the values in the 'file_size' column to KB.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The dataframe containing the data that needs to be standardized.
+    
+    Returns
+    -------
+    df : pandas.DataFrame
+        The dataframe with the 'file_size' column converted to KB.
+    """
+
+    df = df.copy()
+
+    # Ensures all values in the 'file_size' column are strings
+    df["file_size"] = df["file_size"].astype("string")
+
+    # Creates a dataframe separating the numeric and non-numeric values in different columns
+    extracted = df["file_size"].str.extract(r"([\d\.]+)\s*(MB|KB)")
+
+    # Converts the numeric values to float
+    values = extracted[0].astype("Float64")
+
+    # Converts values measured in MB to KB
+    values[extracted[1] == "MB"] = values[extracted[1] == "MB"] * 1024
+
+    # file_size column receives the converted values
+    df["file_size"] = values
+
+    # Ensures that all values in the 'file_size' column are float values in KB
+    df["file_size"] = df["file_size"].astype("Float64")
+
+    return df
+
 def clean_metadata(df):
     """
     Cleans data from the 'media_type', 'duration' and 'file_size' columns.
@@ -81,17 +120,10 @@ def clean_metadata(df):
     df["media_type"] = df["media_type"].map(MEDIA_TYPES)
     
     # Converts all values inthe 'duration' column to seconds and removes the string suffixes
-    df["duration"] = df["duration"].apply(parse_duration).astype("Int64")
+    df["duration"] = df["duration"].apply(standardize_duration).astype("Int64")
 
-    # Converts values from MB to KB and removes the suffixes from the 'file_size' column
-    mask_mb = df["file_size"].str.contains("MB", na=False)
-    df.loc[mask_mb, "file_size"] = (df.loc[mask_mb, "file_size"].str.removesuffix(" MB").astype("Float64") * 1024)
-
-    mask_kb = df["file_size"].str.contains("KB", na=False)
-    df.loc[mask_kb, "file_size"] = df.loc[mask_kb, "file_size"].str.removesuffix(" KB").astype("Float64")
-
-    # Ensures that all values in the 'file_size' column are float values in KB
-    df["file_size"] = df["file_size"].astype("Float64")
+    # Standardizes the values in the 'file_size' column to KB
+    df = standardize_file_size(df)
 
     return df
 
